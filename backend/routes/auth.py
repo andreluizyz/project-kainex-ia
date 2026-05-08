@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
 
@@ -56,6 +57,30 @@ def login_collaborator(payload: LoginSchema, db: Session = Depends(get_db)):
     if not collab:
         raise HTTPException(status_code=400, detail="Invalid credentials")
     if not security.verify_password(payload.password, collab.password_hash):
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+
+    token = security.create_access_token({"sub": str(collab.id), "role": "collaborator", "company_id": collab.company_id}, expires_delta=timedelta(days=7))
+    return {"access_token": token, "token_type": "bearer"}
+
+
+@router.post("/token/company", response_model=Token)
+def login_company_form(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    company = db.query(Company).filter(Company.email_company == form_data.username).first()
+    if not company:
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+    if not security.verify_password(form_data.password, company.password_hash):
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+
+    token = security.create_access_token({"sub": str(company.id), "role": "company"}, expires_delta=timedelta(days=7))
+    return {"access_token": token, "token_type": "bearer"}
+
+
+@router.post("/token/collaborator", response_model=Token)
+def login_collaborator_form(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    collab = db.query(Collaborator).filter(Collaborator.email_collaborator == form_data.username).first()
+    if not collab:
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+    if not security.verify_password(form_data.password, collab.password_hash):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
     token = security.create_access_token({"sub": str(collab.id), "role": "collaborator", "company_id": collab.company_id}, expires_delta=timedelta(days=7))

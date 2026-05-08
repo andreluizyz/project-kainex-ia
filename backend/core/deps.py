@@ -7,7 +7,7 @@ from core import security
 from models.company import Company
 from models.collaborator import Collaborator
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login/company")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token/company")
 
 
 def get_db():
