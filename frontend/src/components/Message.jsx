@@ -8,7 +8,7 @@ function Message({ text, isUser }) {
       <div
         className={`max-w-[70%] p-4 rounded-2xl mb-4 ${
           isUser
-            ? "bg-blue-600"
+            ? "bg-green-700"
             : "bg-zinc-800"
         }`}
       >

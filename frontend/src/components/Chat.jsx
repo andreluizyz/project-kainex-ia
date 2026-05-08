@@ -25,10 +25,17 @@ function Chat() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex h-screen flex-col">
+      <div className="p-6 border-b border-zinc-800 flex flex-col items-center">
+        <img
+          src={logo}
+          alt="Kainex IA"
+          className="w-40 object-contain"
+        />
 
-      <div className="p-1 border-b border-zinc-800">
-        <img src={logo} alt="Kainex IA" className="w-28"/>
+        <p className="text-zinc-400 text-sm mt-2">
+          Mais que IA, uma identidade para sua empresa
+        </p>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
@@ -52,12 +59,11 @@ function Chat() {
 
         <button
           onClick={handleSend}
-          className="bg-blue-600 hover:bg-blue-700 px-6 rounded-xl font-semibold"
+          className="bg-purple-600 hover:bg-purple-700 px-6 rounded-xl font-semibold"
         >
           Enviar
         </button>
       </div>
-
     </div>
   )
 }
