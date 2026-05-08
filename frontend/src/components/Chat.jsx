@@ -1,5 +1,6 @@
 import { useState } from "react"
 import Message from "./Message"
+import logo from "../assets/kainex-ia-image.png"
 
 function Chat() {
   const [messages, setMessages] = useState([
@@ -26,10 +27,8 @@ function Chat() {
   return (
     <div className="flex flex-col h-screen">
 
-      <div className="p-6 border-b border-zinc-800">
-        <h1 className="text-3xl font-bold">
-          Kainex IA
-        </h1>
+      <div className="p-1 border-b border-zinc-800">
+        <img src={logo} alt="Kainex IA" className="w-28"/>
       </div>
 
       <div className="flex-1 overflow-y-auto p-6">
