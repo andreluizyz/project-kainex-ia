@@ -1,227 +1,235 @@
-# Kainex IA 🚀
+# Kainex IA
 
 ## English
 
-### Project Overview
+### Overview
 
-**Kainex IA** is an enterprise AI system that enables companies to train and deploy custom AI models focused on their specific products, services, and internal processes. The platform allows companies to manage collaborators, maintain a knowledge base, and enable AI-powered chat sessions where the AI learns from company-specific data.
+Kainex IA is an enterprise AI platform where each company has its own isolated workspace.
+Companies can register, create collaborators, upload knowledge, open chat sessions, and let collaborators interact with the AI inside company context.
 
-### Key Features
+### Current Status
 
-✅ **Multi-tenant Architecture** — Isolated data per company  
-✅ **Authentication & Authorization** — JWT-based auth for companies and collaborators  
-✅ **Knowledge Base Management** — Upload documents (PDF, TXT, DOCX) and auto-chunking  
-✅ **AI Chat Sessions** — Collaborators chat with AI trained on company data  
-✅ **Collaborator Management** — Create and manage team members with role-based access  
-✅ **Plan/Subscription Model** — Tiers with limits (collaborators, storage, tokens)  
-✅ **Session History** — Track all chat interactions and learning sessions  
-✅ **Embedding & Chunking** — Automatic document processing and vector storage stubs  
+- Backend API implemented with authentication and protected routes.
+- Frontend implemented with purple theme, login/register screen, company dashboard, and collaborator workspace.
+- Alembic configured and migrations enabled.
+
+### Implemented Features
+
+- Company registration and login.
+- Collaborator login.
+- JWT authentication and role-based access (`company` and `collaborator`).
+- Company panel:
+	- create/list collaborators
+	- create/list sessions
+	- upload/list knowledge
+- Collaborator panel:
+	- list sessions
+	- send/read chat messages
+	- upload/list knowledge
+- Knowledge chunking pipeline with embedding stub.
 
 ### Tech Stack
 
-**Backend:**
-- FastAPI (Python 3.10+)
-- SQLAlchemy ORM
-- SQLite (development) / PostgreSQL (production-ready)
-- Alembic (migrations)
-- JWT (security)
-- Pydantic v2 (validation)
+Backend:
+- FastAPI
+- SQLAlchemy
+- Alembic
+- SQLite (default)
+- Passlib + Argon2
+- JWT (`python-jose`)
+- Pydantic v2
 
-**Frontend:**
-- React 18+
-- Vite
-- TypeScript (ready)
-- CSS/Tailwind (extensible)
+Frontend:
+- React + Vite
+- Tailwind CSS
 
-### Database Schema
+### Run Locally
 
-**Plans** — Subscription tiers  
-**Companies** — Tenant organizations  
-**Collaborators** — Team members  
-**Sessions** — Chat sessions  
-**Chats** — Messages in sessions  
-**Knowledges** — Documents/data  
-**Chunks** — Text segments with embeddings  
-
-### Setup & Installation
-
-#### Backend
+Backend:
 
 ```bash
-# Navigate to backend
 cd backend
-
-# Create virtual environment
 python -m venv venv
-venv\Scripts\activate  # Windows
-source venv/bin/activate  # Linux/Mac
-
-# Install dependencies
+venv\Scripts\activate
 pip install -r requirements.txt
-
-# Create .env file
-echo "SECRET_KEY=your_generated_secret_key_here" > .env
-echo "ALGORITHM=HS256" >> .env
-echo "ACCESS_TOKEN_EXPIRE_MINUTES=10080" >> .env
-
-# Run migrations
 alembic upgrade head
-
-# Start server
 uvicorn main:app --reload
 ```
 
-API runs at `http://127.0.0.1:8000`
+Create `backend/.env`:
 
-#### Frontend
+```env
+SECRET_KEY=your_secret_key_here
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=10080
+```
+
+Frontend:
 
 ```bash
-# Navigate to frontend
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start dev server
 npm run dev
 ```
 
-Frontend runs at `http://localhost:5173`
+### API Quick Reference
 
-### API Endpoints (Quick Reference)
+Auth:
+- `POST /auth/register/company`
+- `POST /auth/login/company` (JSON)
+- `POST /auth/login/collaborator` (JSON)
+- `POST /auth/token/company` (OAuth2 form)
+- `POST /auth/token/collaborator` (OAuth2 form)
 
-**Auth:** POST /auth/token/company | /auth/token/collaborator  
-**Company:** GET/POST /company/collaborators  
-**Sessions:** GET/POST /sessions/  
-**Chat:** POST/GET /chat/sessions/{id}/messages  
-**Knowledge:** POST /knowledge/company/upload | GET /knowledge/company  
+Company:
+- `GET /company/collaborators`
+- `POST /company/collaborators`
 
-### Authentication Flow
+Sessions:
+- `GET /sessions/`
+- `POST /sessions/`
+- `GET /sessions/me`
 
-1. Register: `POST /auth/register/company`
-2. Login: `POST /auth/token/company` (username: email, password: pwd)
-3. Use token: `Authorization: Bearer <token>`
+Chat:
+- `POST /chat/sessions/{session_id}/messages`
+- `GET /chat/sessions/{session_id}/messages`
+- `GET /chat/company/sessions/{session_id}/messages`
 
-### Future Enhancements
+Knowledge:
+- `POST /knowledge/company/upload`
+- `POST /knowledge/collaborator/upload`
+- `GET /knowledge/company`
+- `GET /knowledge/collaborator`
+- `GET /knowledge/{knowledge_id}/chunks`
 
-- [ ] Frontend UI (login, dashboard, chat)
-- [ ] Real AI model integration
-- [ ] WebSocket for real-time chat
-- [ ] Document parsing (PDF, DOCX, XLSX)
-- [ ] Vector database integration
-- [ ] RBAC & audit logging
-- [ ] Docker & CI/CD
+### Auth Flow
+
+1. Register a company.
+2. Login with company or collaborator endpoint.
+3. Use the returned token as `Bearer <token>`.
+
+### Next Steps
+
+- Integrate a real LLM provider.
+- Replace embedding stub with real vector embeddings.
+- Add plan limit enforcement (`max_collaborators`, storage, tokens).
+- Add tests (unit + integration).
+- Add Docker and CI/CD.
 
 ---
 
 ## Português
 
-### Visão Geral do Projeto
+### Visão Geral
 
-**Kainex IA** é um sistema de IA empresarial que permite que empresas treinem e implantem modelos de IA personalizados focados em seus produtos, serviços e processos internos. A plataforma permite que empresas gerenciem colaboradores, mantenham uma base de conhecimento e habilitam sessões de chat alimentadas por IA onde o modelo aprende com dados específicos da empresa.
+Kainex IA é uma plataforma de IA empresarial onde cada empresa possui um workspace isolado.
+As empresas podem se cadastrar, criar colaboradores, subir conhecimento, abrir sessões de chat e permitir que colaboradores conversem com a IA no contexto da empresa.
 
-### Recursos Principais
+### Status Atual
 
-✅ **Arquitetura Multi-tenant** — Dados isolados por empresa  
-✅ **Autenticação e Autorização** — Auth baseado em JWT para empresas e colaboradores  
-✅ **Gestão de Base de Conhecimento** — Upload de documentos (PDF, TXT, DOCX) com chunking automático  
-✅ **Sessões de Chat com IA** — Colaboradores conversam com IA treinada em dados da empresa  
-✅ **Gestão de Colaboradores** — Criar e gerenciar membros da equipe com controle de acesso  
-✅ **Modelo de Plano/Assinatura** — Camadas com limites (colaboradores, armazenamento, tokens)  
-✅ **Histórico de Sessões** — Rastreie todas as interações e sessões de aprendizado  
-✅ **Embedding e Chunking** — Processamento automático de documentos e armazenamento de vetores  
+- API backend implementada com autenticação e rotas protegidas.
+- Frontend implementado com tema roxo, tela de login/cadastro, painel da empresa e workspace do colaborador.
+- Alembic configurado e migrações habilitadas.
+
+### Funcionalidades Implementadas
+
+- Cadastro e login de empresa.
+- Login de colaborador.
+- Autenticação JWT e acesso por perfil (`company` e `collaborator`).
+- Painel da empresa:
+	- criar/listar colaboradores
+	- criar/listar sessões
+	- subir/listar base de conhecimento
+- Painel do colaborador:
+	- listar sessões
+	- enviar/ler mensagens de chat
+	- subir/listar conhecimento
+- Pipeline de chunking da base de conhecimento com embedding stub.
 
 ### Stack de Tecnologia
 
-**Backend:**
-- FastAPI (Python 3.10+)
-- SQLAlchemy ORM
-- SQLite (desenvolvimento) / PostgreSQL (pronto para produção)
-- Alembic (migrações)
-- JWT (segurança)
-- Pydantic v2 (validação)
+Backend:
+- FastAPI
+- SQLAlchemy
+- Alembic
+- SQLite (padrão)
+- Passlib + Argon2
+- JWT (`python-jose`)
+- Pydantic v2
 
-**Frontend:**
-- React 18+
-- Vite
-- TypeScript (pronto)
-- CSS/Tailwind (extensível)
+Frontend:
+- React + Vite
+- Tailwind CSS
 
-### Schema do Banco de Dados
+### Como Rodar Localmente
 
-**Planos** — Camadas de assinatura  
-**Empresas** — Organizações tenants  
-**Colaboradores** — Membros da equipe  
-**Sessões** — Sessões de chat  
-**Chats** — Mensagens nas sessões  
-**Conhecimentos** — Documentos/dados  
-**Chunks** — Segmentos de texto com embeddings  
-
-### Configuração e Instalação
-
-#### Backend
+Backend:
 
 ```bash
-# Navegue até backend
 cd backend
-
-# Crie ambiente virtual
 python -m venv venv
-venv\Scripts\activate  # Windows
-source venv/bin/activate  # Linux/Mac
-
-# Instale dependências
+venv\Scripts\activate
 pip install -r requirements.txt
-
-# Crie arquivo .env
-echo "SECRET_KEY=sua_chave_secreta_aqui" > .env
-echo "ALGORITHM=HS256" >> .env
-echo "ACCESS_TOKEN_EXPIRE_MINUTES=10080" >> .env
-
-# Execute migrações
 alembic upgrade head
-
-# Inicie o servidor
 uvicorn main:app --reload
 ```
 
-API executa em `http://127.0.0.1:8000`
+Crie `backend/.env`:
 
-#### Frontend
+```env
+SECRET_KEY=sua_secret_key_aqui
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=10080
+```
+
+Frontend:
 
 ```bash
-# Navegue até frontend
 cd frontend
-
-# Instale dependências
 npm install
-
-# Inicie servidor de desenvolvimento
 npm run dev
 ```
 
-Frontend executa em `http://localhost:5173`
+### Referência Rápida da API
 
-### Endpoints da API (Referência Rápida)
+Auth:
+- `POST /auth/register/company`
+- `POST /auth/login/company` (JSON)
+- `POST /auth/login/collaborator` (JSON)
+- `POST /auth/token/company` (OAuth2 form)
+- `POST /auth/token/collaborator` (OAuth2 form)
 
-**Auth:** POST /auth/token/company | /auth/token/collaborator  
-**Empresa:** GET/POST /company/collaborators  
-**Sessões:** GET/POST /sessions/  
-**Chat:** POST/GET /chat/sessions/{id}/messages  
-**Conhecimento:** POST /knowledge/company/upload | GET /knowledge/company  
+Empresa:
+- `GET /company/collaborators`
+- `POST /company/collaborators`
+
+Sessões:
+- `GET /sessions/`
+- `POST /sessions/`
+- `GET /sessions/me`
+
+Chat:
+- `POST /chat/sessions/{session_id}/messages`
+- `GET /chat/sessions/{session_id}/messages`
+- `GET /chat/company/sessions/{session_id}/messages`
+
+Conhecimento:
+- `POST /knowledge/company/upload`
+- `POST /knowledge/collaborator/upload`
+- `GET /knowledge/company`
+- `GET /knowledge/collaborator`
+- `GET /knowledge/{knowledge_id}/chunks`
 
 ### Fluxo de Autenticação
 
-1. Registrar: `POST /auth/register/company`
-2. Login: `POST /auth/token/company` (username: email, password: pwd)
-3. Use token: `Authorization: Bearer <token>`
+1. Cadastre uma empresa.
+2. Faça login com endpoint de empresa ou colaborador.
+3. Use o token retornado como `Bearer <token>`.
 
-### Próximas Melhorias
+### Próximos Passos
 
-- [ ] UI do frontend (login, painel, chat)
-- [ ] Integração com modelo de IA real
-- [ ] WebSocket para chat em tempo real
-- [ ] Parser de documentos (PDF, DOCX, XLSX)
-- [ ] Integração com banco de dados vetorial
-- [ ] RBAC & log de auditoria
-- [ ] Docker & CI/CD
+- Integrar provedor LLM real.
+- Substituir embedding stub por embeddings reais.
+- Adicionar validação de limites do plano (`max_collaborators`, storage, tokens).
+- Adicionar testes (unitários + integração).
+- Adicionar Docker e CI/CD.
