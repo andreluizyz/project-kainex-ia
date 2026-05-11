@@ -62,7 +62,20 @@ Create `backend/.env`:
 SECRET_KEY=your_secret_key_here
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=10080
+LLM_API_URL=http://localhost:11434/api/generate
+LLM_MODEL=llama3
+LLM_TIMEOUT_SECONDS=120
 ```
+
+Local LLM requirement:
+
+```bash
+# Install and run Ollama, then pull the model
+ollama pull llama3
+ollama serve
+```
+
+The chat endpoint uses the local Ollama API at `http://localhost:11434/api/generate`.
 
 Frontend:
 
@@ -180,7 +193,20 @@ Crie `backend/.env`:
 SECRET_KEY=sua_secret_key_aqui
 ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=10080
+LLM_API_URL=http://localhost:11434/api/generate
+LLM_MODEL=llama3
+LLM_TIMEOUT_SECONDS=120
 ```
+
+Requisito do LLM local:
+
+```bash
+# Instale e inicie o Ollama, depois baixe o modelo
+ollama pull llama3
+ollama serve
+```
+
+A rota de chat usa a API local do Ollama em `http://localhost:11434/api/generate`.
 
 Frontend:
 

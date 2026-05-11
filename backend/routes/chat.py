@@ -5,6 +5,7 @@ from core.deps import get_db, get_current_collaborator, get_current_company
 from models.chat import Chat as ChatModel
 from models.session import Session as SessionModel
 from schemas.chat_schema import ChatCreate, ChatRead
+from services.llm_service import create_ai_response
 
 router = APIRouter()
 
@@ -15,11 +16,12 @@ def post_message(session_id: int, payload: ChatCreate, collaborator=Depends(get_
     if not sess or sess.company_id != collaborator.company_id:
         raise HTTPException(status_code=404, detail="Session not found")
 
-    chat = ChatModel(session_id=session_id, role=payload.role, message=payload.message)
-    db.add(chat)
+    user_chat = ChatModel(session_id=session_id, role="Collaborator", message=payload.message)
+    db.add(user_chat)
     db.commit()
-    db.refresh(chat)
-    return chat
+
+    ai_chat = create_ai_response(db, sess, payload.message)
+    return ai_chat
 
 
 @router.get("/sessions/{session_id}/messages", response_model=list[ChatRead])
