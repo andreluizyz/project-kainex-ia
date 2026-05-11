@@ -1,51 +1,74 @@
 # Kainex IA
 
-## English
+Kainex IA is an enterprise AI platform built around isolated workspaces for each company. The goal of the project was to create a system where a company can register collaborators, manage sessions, upload its own knowledge base, and talk to an AI that stays inside the context of that business.
 
-### Overview
+The backend is built with FastAPI and SQLAlchemy, while the frontend uses React and Vite. The chat runs through a local Ollama model, so the experience does not depend on a third-party AI provider.
 
-Kainex IA is an enterprise AI platform where each company has its own isolated workspace.
-Companies can register, create collaborators, upload knowledge, open chat sessions, and let collaborators interact with the AI inside company context.
+## What the project does
 
-### Current Status
+- company registration and login
+- collaborator login
+- JWT authentication
+- role-protected routes
+- company dashboard for:
+  - creating and listing collaborators
+  - creating and listing sessions
+  - uploading and listing knowledge
+- collaborator workspace for:
+  - browsing available sessions
+  - chatting with the AI
+  - uploading knowledge
+- file uploads, including PDF files
+- knowledge chunking to help the AI answer with better context
+- light/dark theme switch
+- PT-BR and English interface switch
+- loading feedback in the chat so it does not feel frozen
 
-- Backend API implemented with authentication and protected routes.
-- Frontend implemented with purple theme, login/register screen, company dashboard, and collaborator workspace.
-- Alembic configured and migrations enabled.
+## Project structure
 
-### Implemented Features
+### Backend
 
-- Company registration and login.
-- Collaborator login.
-- JWT authentication and role-based access (`company` and `collaborator`).
-- Company panel:
-	- create/list collaborators
-	- create/list sessions
-	- upload/list knowledge
-- Collaborator panel:
-	- list sessions
-	- send/read chat messages
-	- upload/list knowledge
-- Knowledge chunking pipeline with embedding stub.
+The backend is responsible for:
 
-### Tech Stack
+- authentication and authorization
+- company and collaborator management
+- session management
+- chat history storage
+- knowledge upload and text extraction
+- knowledge chunk generation
+- local LLM integration through Ollama
 
-Backend:
+Main stack:
+
 - FastAPI
 - SQLAlchemy
 - Alembic
-- SQLite (default)
-- Passlib + Argon2
-- JWT (`python-jose`)
+- SQLite as the default database
+- Passlib + Argon2 for password hashing
+- JWT with `python-jose`
 - Pydantic v2
 
-Frontend:
-- React + Vite
-- Tailwind CSS
+### Frontend
 
-### Run Locally
+The frontend is responsible for:
 
-Backend:
+- login and registration screens
+- company dashboard
+- collaborator workspace
+- chat UI
+- language toggle
+- theme toggle
+- loading states and small interaction details
+
+Main stack:
+
+- React
+- Vite
+- Tailwind-style utility classes and custom CSS
+
+## Local setup
+
+### 1. Backend
 
 ```bash
 cd backend
@@ -56,7 +79,9 @@ alembic upgrade head
 uvicorn main:app --reload
 ```
 
-Create `backend/.env`:
+### 2. Backend environment variables
+
+Create `backend/.env` with values like these:
 
 ```env
 SECRET_KEY=your_secret_key_here
@@ -67,17 +92,22 @@ LLM_MODEL=llama3
 LLM_TIMEOUT_SECONDS=120
 ```
 
-Local LLM requirement:
+### 3. Local LLM
+
+The project expects Ollama to be running locally.
 
 ```bash
-# Install and run Ollama, then pull the model
 ollama pull llama3
 ollama serve
 ```
 
-The chat endpoint uses the local Ollama API at `http://localhost:11434/api/generate`.
+The chat endpoint sends requests to:
 
-Frontend:
+```text
+http://localhost:11434/api/generate
+```
+
+### 4. Frontend
 
 ```bash
 cd frontend
@@ -85,177 +115,106 @@ npm install
 npm run dev
 ```
 
-### API Quick Reference
+## Main features in detail
 
-Auth:
+### Authentication
+
+The app supports both company and collaborator authentication.
+
+- company registration
+- company login
+- collaborator login
+- JWT tokens for protected access
+- OAuth-compatible token endpoints for Swagger and form-based login flows
+
+### Company workspace
+
+The company area allows the admin side to:
+
+- create collaborators
+- list collaborators
+- create sessions
+- view sessions
+- upload company knowledge
+- inspect stored chunks
+
+### Collaborator workspace
+
+The collaborator area allows the user to:
+
+- choose an available session
+- send messages to the AI
+- read the AI answers inside the company context
+- upload knowledge for the company workspace
+
+### Knowledge handling
+
+Uploaded content is stored and processed so the AI can use it later.
+
+- plain text is accepted directly
+- PDF uploads are supported
+- files are stored inside the backend project folder
+- uploaded text is split into chunks
+- chunks are used as searchable context for chat replies
+
+### Chat behavior
+
+The chat is designed to feel like a real assistant instead of a static form.
+
+- messages appear in the conversation history
+- the chat shows a loading indicator while the AI is thinking
+- responses follow the user language when possible
+- the prompt keeps the assistant grounded in the company context
+- creative requests such as naming or improvement suggestions are answered in a more conversational way
+
+## API reference
+
+### Authentication
+
 - `POST /auth/register/company`
-- `POST /auth/login/company` (JSON)
-- `POST /auth/login/collaborator` (JSON)
-- `POST /auth/token/company` (OAuth2 form)
-- `POST /auth/token/collaborator` (OAuth2 form)
+- `POST /auth/login/company`
+- `POST /auth/login/collaborator`
+- `POST /auth/token/company`
+- `POST /auth/token/collaborator`
 
-Company:
+### Company
+
 - `GET /company/collaborators`
 - `POST /company/collaborators`
 
-Sessions:
+### Sessions
+
 - `GET /sessions/`
 - `POST /sessions/`
 - `GET /sessions/me`
 
-Chat:
+### Chat
+
 - `POST /chat/sessions/{session_id}/messages`
 - `GET /chat/sessions/{session_id}/messages`
 - `GET /chat/company/sessions/{session_id}/messages`
 
-Knowledge:
+### Knowledge
+
 - `POST /knowledge/company/upload`
 - `POST /knowledge/collaborator/upload`
 - `GET /knowledge/company`
 - `GET /knowledge/collaborator`
 - `GET /knowledge/{knowledge_id}/chunks`
 
-### Auth Flow
+## What I learned while building this
 
-1. Register a company.
-2. Login with company or collaborator endpoint.
-3. Use the returned token as `Bearer <token>`.
+- splitting the app by roles makes the whole system easier to understand and safer to protect
+- JWT plus protected routes becomes much more useful once the app has more than one type of user
+- chat with AI is not just “send text and wait”; context, history, and prompt quality matter a lot
+- good prompting reduces generic replies and makes the assistant less likely to invent information
+- file upload is more than storing bytes, because it also involves file paths, extraction, and storage decisions
+- chunking knowledge helps the AI answer in a more relevant way
+- the interface matters as much as the backend: loading feedback, theme, and language control change how polished the app feels
+- keeping the architecture organized from the start saves time later and makes debugging easier
 
-### Next Steps
+## Notes
 
-- Integrate a real LLM provider.
-- Replace embedding stub with real vector embeddings.
-- Add plan limit enforcement (`max_collaborators`, storage, tokens).
-- Add tests (unit + integration).
-- Add Docker and CI/CD.
-
----
-
-## Português
-
-### Visão Geral
-
-Kainex IA é uma plataforma de IA empresarial onde cada empresa possui um workspace isolado.
-As empresas podem se cadastrar, criar colaboradores, subir conhecimento, abrir sessões de chat e permitir que colaboradores conversem com a IA no contexto da empresa.
-
-### Status Atual
-
-- API backend implementada com autenticação e rotas protegidas.
-- Frontend implementado com tema roxo, tela de login/cadastro, painel da empresa e workspace do colaborador.
-- Alembic configurado e migrações habilitadas.
-
-### Funcionalidades Implementadas
-
-- Cadastro e login de empresa.
-- Login de colaborador.
-- Autenticação JWT e acesso por perfil (`company` e `collaborator`).
-- Painel da empresa:
-	- criar/listar colaboradores
-	- criar/listar sessões
-	- subir/listar base de conhecimento
-- Painel do colaborador:
-	- listar sessões
-	- enviar/ler mensagens de chat
-	- subir/listar conhecimento
-- Pipeline de chunking da base de conhecimento com embedding stub.
-
-### Stack de Tecnologia
-
-Backend:
-- FastAPI
-- SQLAlchemy
-- Alembic
-- SQLite (padrão)
-- Passlib + Argon2
-- JWT (`python-jose`)
-- Pydantic v2
-
-Frontend:
-- React + Vite
-- Tailwind CSS
-
-### Como Rodar Localmente
-
-Backend:
-
-```bash
-cd backend
-python -m venv venv
-venv\Scripts\activate
-pip install -r requirements.txt
-alembic upgrade head
-uvicorn main:app --reload
-```
-
-Crie `backend/.env`:
-
-```env
-SECRET_KEY=sua_secret_key_aqui
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=10080
-LLM_API_URL=http://localhost:11434/api/generate
-LLM_MODEL=llama3
-LLM_TIMEOUT_SECONDS=120
-```
-
-Requisito do LLM local:
-
-```bash
-# Instale e inicie o Ollama, depois baixe o modelo
-ollama pull llama3
-ollama serve
-```
-
-A rota de chat usa a API local do Ollama em `http://localhost:11434/api/generate`.
-
-Frontend:
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-### Referência Rápida da API
-
-Auth:
-- `POST /auth/register/company`
-- `POST /auth/login/company` (JSON)
-- `POST /auth/login/collaborator` (JSON)
-- `POST /auth/token/company` (OAuth2 form)
-- `POST /auth/token/collaborator` (OAuth2 form)
-
-Empresa:
-- `GET /company/collaborators`
-- `POST /company/collaborators`
-
-Sessões:
-- `GET /sessions/`
-- `POST /sessions/`
-- `GET /sessions/me`
-
-Chat:
-- `POST /chat/sessions/{session_id}/messages`
-- `GET /chat/sessions/{session_id}/messages`
-- `GET /chat/company/sessions/{session_id}/messages`
-
-Conhecimento:
-- `POST /knowledge/company/upload`
-- `POST /knowledge/collaborator/upload`
-- `GET /knowledge/company`
-- `GET /knowledge/collaborator`
-- `GET /knowledge/{knowledge_id}/chunks`
-
-### Fluxo de Autenticação
-
-1. Cadastre uma empresa.
-2. Faça login com endpoint de empresa ou colaborador.
-3. Use o token retornado como `Bearer <token>`.
-
-### Próximos Passos
-
-- Integrar provedor LLM real.
-- Substituir embedding stub por embeddings reais.
-- Adicionar validação de limites do plano (`max_collaborators`, storage, tokens).
-- Adicionar testes (unitários + integração).
-- Adicionar Docker e CI/CD.
+- The project uses a local Ollama instance for chat.
+- The backend expects the API at `http://localhost:11434/api/generate`.
+- The repository is focused on a practical enterprise workflow, not on a generic demo chatbot.

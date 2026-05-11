@@ -62,7 +62,10 @@ async def upload_knowledge_as_company(
 
     if file is not None:
         raw_bytes = await file.read()
-        raw_content = extract_text_from_upload(file.filename or "upload.txt", raw_bytes)
+        try:
+            raw_content = extract_text_from_upload(file.filename or "upload.txt", raw_bytes)
+        except RuntimeError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
         file_url = save_upload(company.id, file.filename or "upload.txt", raw_bytes)
         if source_type == "text":
             source_type = (file.filename or "upload.txt").rsplit(".", 1)[-1].lower()
@@ -96,7 +99,10 @@ async def upload_knowledge_as_collaborator(
 
     if file is not None:
         raw_bytes = await file.read()
-        raw_content = extract_text_from_upload(file.filename or "upload.txt", raw_bytes)
+        try:
+            raw_content = extract_text_from_upload(file.filename or "upload.txt", raw_bytes)
+        except RuntimeError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
         file_url = save_upload(collaborator.company_id, file.filename or "upload.txt", raw_bytes)
         if source_type == "text":
             source_type = (file.filename or "upload.txt").rsplit(".", 1)[-1].lower()

@@ -9,7 +9,8 @@ import re
 from typing import List
 
 
-UPLOAD_ROOT = Path(__file__).resolve().parents[1] / "uploads" / "knowledge"
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
+UPLOAD_ROOT = BACKEND_ROOT / "uploads" / "knowledge"
 
 
 def normalize_text(text: str) -> str:
@@ -70,7 +71,7 @@ def save_upload(company_id: int, filename: str, raw_bytes: bytes) -> str:
     stamped_name = f"{datetime.utcnow():%Y%m%d%H%M%S}_{safe_filename(filename)}"
     file_path = company_folder / stamped_name
     file_path.write_bytes(raw_bytes)
-    return str(file_path)
+    return str(file_path.relative_to(BACKEND_ROOT).as_posix())
 
 
 def extract_text_from_upload(filename: str, raw_bytes: bytes) -> str:

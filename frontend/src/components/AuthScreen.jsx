@@ -1,8 +1,9 @@
 import { useState } from "react"
 import { loginCollaborator, loginCompany, registerCompany } from "../services/api"
 import logo from "../assets/kainex-ia-image.png"
+import { t } from "../i18n"
 
-function AuthScreen({ onLogin }) {
+function AuthScreen({ onLogin, locale, theme }) {
   const [mode, setMode] = useState("company-login")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
@@ -25,7 +26,7 @@ function AuthScreen({ onLogin }) {
 
     try {
       await registerCompany(registerForm)
-      setSuccess("Company created. You can login now.")
+      setSuccess(t(locale, "auth.companyCreated"))
       setMode("company-login")
     } catch (err) {
       setError(err.message)
@@ -65,32 +66,32 @@ function AuthScreen({ onLogin }) {
   }
 
   return (
-    <section className="mx-auto w-full max-w-md rounded-[1.6rem] border border-violet-300/25 bg-gradient-to-b from-violet-950/65 to-fuchsia-950/40 p-6 shadow-[0_24px_80px_rgba(76,29,149,0.45)] sm:p-8">
+    <section className={`mx-auto w-full max-w-md rounded-[1.6rem] border p-6 sm:p-8 ${theme === "dark" ? "border-violet-300/25 bg-gradient-to-b from-violet-950/65 to-fuchsia-950/40 shadow-[0_24px_80px_rgba(76,29,149,0.45)]" : "border-slate-300 bg-gradient-to-b from-white to-violet-50 shadow-[0_20px_45px_rgba(15,23,42,0.15)]"}`}>
       <div className="flex flex-col items-center text-center">
         <img src={logo} alt="Kainex IA" className="h-20 w-auto object-contain" />
-        <h2 className="mt-4 text-2xl font-semibold text-white">Sign in</h2>
-        <p className="mt-1 text-sm text-violet-200/85">Access your company or collaborator workspace.</p>
+        <h2 className={`mt-4 text-2xl font-semibold ${theme === "dark" ? "text-white" : "text-slate-900"}`}>{t(locale, "auth.signIn")}</h2>
+        <p className={`mt-1 text-sm ${theme === "dark" ? "text-violet-200/85" : "text-slate-600"}`}>{t(locale, "auth.subtitle")}</p>
       </div>
 
       <div className="mt-6 rounded-2xl border border-white/10 bg-black/25 p-2">
         <div className="grid grid-cols-3 gap-2 text-xs sm:text-sm">
           <button
             onClick={() => setMode("company-login")}
-            className={`rounded-xl px-3 py-2 transition ${mode === "company-login" ? "bg-violet-400 text-violet-950" : "bg-white/5 text-slate-300 hover:bg-white/10"}`}
+            className={`rounded-xl px-3 py-2 transition ${mode === "company-login" ? "bg-violet-400 text-violet-950" : theme === "dark" ? "bg-white/5 text-slate-300 hover:bg-white/10" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
           >
-            Company
+            {t(locale, "auth.companyTab")}
           </button>
           <button
             onClick={() => setMode("company-register")}
-            className={`rounded-xl px-3 py-2 transition ${mode === "company-register" ? "bg-violet-400 text-violet-950" : "bg-white/5 text-slate-300 hover:bg-white/10"}`}
+            className={`rounded-xl px-3 py-2 transition ${mode === "company-register" ? "bg-violet-400 text-violet-950" : theme === "dark" ? "bg-white/5 text-slate-300 hover:bg-white/10" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
           >
-            Register
+            {t(locale, "auth.registerTab")}
           </button>
           <button
             onClick={() => setMode("collaborator-login")}
-            className={`rounded-xl px-3 py-2 transition ${mode === "collaborator-login" ? "bg-violet-400 text-violet-950" : "bg-white/5 text-slate-300 hover:bg-white/10"}`}
+            className={`rounded-xl px-3 py-2 transition ${mode === "collaborator-login" ? "bg-violet-400 text-violet-950" : theme === "dark" ? "bg-white/5 text-slate-300 hover:bg-white/10" : "bg-slate-100 text-slate-700 hover:bg-slate-200"}`}
           >
-            Collaborator
+            {t(locale, "auth.collaboratorTab")}
           </button>
         </div>
       </div>
@@ -102,7 +103,7 @@ function AuthScreen({ onLogin }) {
         <form onSubmit={handleRegisterCompany} className="mt-5 grid gap-4">
           <input
             required
-            placeholder="Company name"
+            placeholder={t(locale, "auth.companyName")}
             value={registerForm.name_company}
             onChange={(e) => setRegisterForm((prev) => ({ ...prev, name_company: e.target.value }))}
             className="input"
@@ -110,7 +111,7 @@ function AuthScreen({ onLogin }) {
           <input
             required
             type="email"
-            placeholder="Company email"
+            placeholder={t(locale, "auth.companyEmail")}
             value={registerForm.email_company}
             onChange={(e) => setRegisterForm((prev) => ({ ...prev, email_company: e.target.value }))}
             className="input"
@@ -118,14 +119,14 @@ function AuthScreen({ onLogin }) {
           <input
             required
             type="password"
-            placeholder="Password"
+            placeholder={t(locale, "auth.password")}
             value={registerForm.password}
             onChange={(e) => setRegisterForm((prev) => ({ ...prev, password: e.target.value }))}
             className="input"
           />
           <input
             type="number"
-            placeholder="Plan ID (optional)"
+            placeholder={t(locale, "auth.planId")}
             onChange={(e) => {
               const value = e.target.value
               setRegisterForm((prev) => ({ ...prev, plan_id: value ? Number(value) : null }))
@@ -133,7 +134,7 @@ function AuthScreen({ onLogin }) {
             className="input"
           />
           <button disabled={loading} className="btn-primary" type="submit">
-            {loading ? "Creating..." : "Create company"}
+            {loading ? t(locale, "auth.creating") : t(locale, "auth.createCompany")}
           </button>
         </form>
       )}
@@ -143,7 +144,7 @@ function AuthScreen({ onLogin }) {
           <input
             required
             type="email"
-            placeholder="Company email"
+            placeholder={t(locale, "auth.companyEmail")}
             value={loginForm.email}
             onChange={(e) => setLoginForm((prev) => ({ ...prev, email: e.target.value }))}
             className="input"
@@ -151,13 +152,13 @@ function AuthScreen({ onLogin }) {
           <input
             required
             type="password"
-            placeholder="Password"
+            placeholder={t(locale, "auth.password")}
             value={loginForm.password}
             onChange={(e) => setLoginForm((prev) => ({ ...prev, password: e.target.value }))}
             className="input"
           />
           <button disabled={loading} className="btn-primary" type="submit">
-            {loading ? "Signing in..." : "Sign in as company"}
+            {loading ? t(locale, "auth.signingIn") : t(locale, "auth.signInCompany")}
           </button>
         </form>
       )}
@@ -167,7 +168,7 @@ function AuthScreen({ onLogin }) {
           <input
             required
             type="email"
-            placeholder="Collaborator email"
+            placeholder={t(locale, "auth.collaboratorEmail")}
             value={loginForm.email}
             onChange={(e) => setLoginForm((prev) => ({ ...prev, email: e.target.value }))}
             className="input"
@@ -175,13 +176,13 @@ function AuthScreen({ onLogin }) {
           <input
             required
             type="password"
-            placeholder="Password"
+            placeholder={t(locale, "auth.password")}
             value={loginForm.password}
             onChange={(e) => setLoginForm((prev) => ({ ...prev, password: e.target.value }))}
             className="input"
           />
           <button disabled={loading} className="btn-primary" type="submit">
-            {loading ? "Signing in..." : "Sign in as collaborator"}
+            {loading ? t(locale, "auth.signingIn") : t(locale, "auth.signInCollaborator")}
           </button>
         </form>
       )}

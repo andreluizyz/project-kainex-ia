@@ -12,7 +12,7 @@ function Message({ text, isUser }) {
             : "bg-zinc-800"
         }`}
       >
-        {text}
+        <div className="whitespace-pre-wrap leading-6">{text}</div>
       </div>
     </div>
   )
